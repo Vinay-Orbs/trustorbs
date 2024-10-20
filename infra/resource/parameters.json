@@ -1,0 +1,31 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+      "aksClusterName": {
+        "value": "test_trustorbs_aks"
+      },
+      "keyVaultName": {
+        "value": "test-trustorbs-kv"
+      },
+      "dnsPrefix": {
+        "value": "testtrustorbsaks"
+      },
+      "nodeCount": {
+        "value": 1
+      },
+      "nodeVmSize": {
+        "value": "Standard_B2s"
+      },
+      "servicePrincipalClientId": {
+        "value": "XXX"
+      },
+      "servicePrincipalClientSecret": {
+        "value": "XXX"
+      },
+      "objectId": {
+        "value": "XXX" 
+      }
+    }
+  }
+  
