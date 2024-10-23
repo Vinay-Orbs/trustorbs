@@ -27,6 +27,7 @@ jobs:
           --parameters \
             servicePrincipalClientId=${{ secrets.SERVICE_PRINCIPAL_CLIENT_ID }} \
             servicePrincipalClientSecret=${{ secrets.SERVICE_PRINCIPAL_CLIENT_SECRET }}
+            objectId=${{ secrets.OBJECT_ID }}
 
     - name: Get AKS credentials
       run: |
