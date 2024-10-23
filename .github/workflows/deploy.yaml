@@ -37,25 +37,26 @@ jobs:
 
     - name: Create Kubernetes namespace
       run: |
-        kubectl create namespace test-trustorbs
+        kubectl create namespace test-trustorbs || echo "Namespace already exists"
 
-    - name: Add Helm repo
+    - name: Add Helm repos
       run: |
         helm repo add bitnami https://charts.bitnami.com/bitnami
         helm repo add codecentric https://codecentric.github.io/helm-charts
 
-    - name: Update Helm repo
+    - name: Update Helm repos
       run: |
         helm repo update
 
     - name: Install PostgreSQL using Helm
       run: |
-        helm install keycloak-db-test bitnami/postgresql \
+        helm install keycloak-db bitnami/postgresql \
           --namespace test-trustorbs \
           --values ./keycloak/keycloak-db-values.yaml
 
-    - name: Install Kecloak using Helm
+    - name: Install Keycloak using Helm with LoadBalancer
       run: |
-        helm install keycloak-test codecentric/keycloakx \
+        helm install keycloak codecentric/keycloakx \
           --namespace test-trustorbs \
+          --set keycloak.service.type=LoadBalancer \
           --values ./keycloak/keycloak-server-values.yaml
