@@ -18,13 +18,10 @@
         "value": "Standard_B2s"
       },
       "servicePrincipalClientId": {
-        "value": "XXX"
+        "value": ""
       },
       "servicePrincipalClientSecret": {
-        "value": "XXX"
-      },
-      "objectId": {
-        "value": "XXX" 
+        "value": ""
       }
     }
   }

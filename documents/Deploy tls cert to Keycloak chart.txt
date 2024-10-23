@@ -1,0 +1,66 @@
+This is instruction how to add TLS cert to Keycloak deployment.
+
+Assume you have secret key signed with this key tls certificate without passwords. Files: tls.key, tls.crt. 
+
+Steps to update them in helm:
+
+1. Create java keystore "keycloak.jks"
+2. Create k8s secret "tls-secret" with "keycloak.jks"
+3. Do helm install or helm upgrade, if keycloak chart already installed. Helm upgrade is needed to restart keycloak pod and should include --recreate-pods flag.
+
+
+Create keycloak.jks with password my-pwd
+------------------------------------------
+
+On VM with openssl and java
+Files tls.key and tls.crt aer pre-created.
+
+pwd="my-pwd"
+
+> openssl pkcs12 -export -inkey tls.key -in tls.crt -name servcert -out keycloak.p12 -passout pass:$pwd
+> keytool -importkeystore -srckeystore keycloak.p12 -srcstoretype pkcs12 -srcalias servcert -destkeystore keycloak.jks -deststorepass $pwd -destkeypass $pwd -srckeypass $pwd -srcstorepass $pwd -noprompt
+
+File keycloak.jks with password my-pwd should be created.
+
+
+Create k8s secret "tls-secret" with keycloak.jks
+------------------------------------------------
+
+> kubectl delete secret tls-secret
+> kubectl create secret generic tls-secret --from-file=keycloak.jks
+
+Install Keycloak chart or upgrade to restart pod
+--------------------------------------------------
+
+Do "helm install ... " or " helm upgrade ... --recreate-pods"
+
+Check that after helm upgrade keycloak pod is restarted.
+
+
+Helm values
+----------------
+
+Value file for keycloak chart is the same as before. 
+
+Helm parameters related to tls keystore:
+
+- Point Keycloak to keystore file:
+
+  - "--https-key-store-file=/etc/tls/keycloak.jks"
+  - "--https-key-store-password=my-pwd"
+  
+- Mount keycloak.jks into /etc/tls in docker:
+  
+extraVolumes: |
+  - name: tls-volume
+    secret:
+      secretName: tls-secret
+
+extraVolumeMounts: |
+  - name: tls-volume
+    mountPath: /etc/tls
+    readOnly: true
+  
+
+
+ 
