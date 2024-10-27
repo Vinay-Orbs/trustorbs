@@ -48,15 +48,15 @@ jobs:
       run: |
         helm repo update
 
-    - name: Install PostgreSQL using Helm
+    - name: Install or Upgrade PostgreSQL using Helm
       run: |
-        helm install keycloak-db bitnami/postgresql \
+        helm upgrade --install keycloak-db bitnami/postgresql \
           --namespace test-trustorbs \
           --values ./keycloak/keycloak-db-values.yaml
 
-    - name: Install Keycloak using Helm with LoadBalancer
+    - name: Install or Upgrade Keycloak using Helm with LoadBalancer
       run: |
-        helm install keycloak codecentric/keycloakx \
+        helm upgrade --install keycloak codecentric/keycloakx \
           --namespace test-trustorbs \
           --set keycloak.service.type=LoadBalancer \
           --values ./keycloak/keycloak-server-values.yaml
