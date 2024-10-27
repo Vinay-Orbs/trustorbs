@@ -58,5 +58,4 @@ jobs:
       run: |
         helm upgrade --install keycloak codecentric/keycloakx \
           --namespace test-trustorbs \
-          --set keycloak.service.type=LoadBalancer \
           --values ./keycloak/keycloak-server-values.yaml
