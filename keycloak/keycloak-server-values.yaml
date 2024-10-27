@@ -25,8 +25,6 @@ extraEnv: |
     value: >-
       -XX:MaxRAMPercentage=50.0
       -Djgroups.dns.query={{ include "keycloak.fullname" . }}-headless
-  - name: KC_HOSTNAME
-    value: "13.93.155.38"
 
 dbchecker:
   enabled: true
