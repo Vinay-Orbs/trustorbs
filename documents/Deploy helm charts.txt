@@ -1,0 +1,30 @@
+Deploy Azure Resources
+Use github actions to deploy the resouces.
+
+To get aks credentials 
+az aks get-credentials --resource-group test_trustorbs --name test_trustorbs_aks
+
+
+1.Deploy PostGreSQL using helm Charts
+2. Deploy Keycloak using helm charts
+3. Deploy step certificates using values.yaml 
+4. Create TLS certifiate using -
+get into pod 
+kubectl exec -it step-certificates-0 -- /bin/sh
+generate certificate
+step ca certificate "keycloak1234.hopto.org" /home/step/keycloak.crt /home/step/keycloak.key
+copy it to the local repo (exit the step pod)
+kubectl cp step-certificates-0:/home/step/keycloak.crt ./keycloak.crt
+kubectl cp step-certificates-0:/home/step/keycloak.key ./keycloak.key
+verify the certificate
+openssl x509 -in keycloak.crt -text -noout
+create the secret in kubernates
+kubectl delete secret keycloak-tls  (delete previous if already there)
+kubectl create secret tls keycloak-tls --cert=tls.crt --key=tls.key
+Check secret
+kubectl get secret keycloak-tls -o yaml
+5. Expose Load Balancer 
+kubectl expose service keycloak-keycloakx-http --type=LoadBalancer --name=keycloak-loadbalancer
+5. Patch Load Balancer 
+kubectl patch service keycloak-loadbalancer -p '{\"spec\":{\"ports\":[{\"port\":80,\"targetPort\":8080}]}}'
+

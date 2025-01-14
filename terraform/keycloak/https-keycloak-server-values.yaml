@@ -1,0 +1,88 @@
+# This is an example configuration, for production grade configuration see the Keycloak documentation.
+# See https://www.keycloak.org/server/configuration
+# See https://www.keycloak.org/server/all-config
+
+command:
+  - "/opt/keycloak/bin/kc.sh"
+  - "--verbose"
+  - "start-dev"
+  - "--http-port=8080"
+  - "--https-port=8443"
+  - "--https-certificate-file=/etc/tls/tls.crt"
+  - "--https-certificate-key-file=/etc/tls/tls.key"
+  - "--hostname=${hostname}"
+  - "--hostname-strict=true" 
+
+image:
+  tag: "26.0.6"
+
+extraEnv: |
+  - name: KEYCLOAK_ADMIN
+    valueFrom:
+      secretKeyRef:
+        name: {{ include "keycloak.fullname" . }}-admin-creds
+        key: user
+  - name: KEYCLOAK_ADMIN_PASSWORD
+    valueFrom:
+      secretKeyRef:
+        name: {{ include "keycloak.fullname" . }}-admin-creds
+        key: password
+  - name: JAVA_OPTS_APPEND
+    value: >-
+      -XX:MaxRAMPercentage=50.0
+      -Djgroups.dns.query={{ include "keycloak.fullname" . }}-headless
+
+dbchecker:
+  enabled: true
+
+database:
+  vendor: postgres
+  hostname: keycloak-db-postgresql
+  port: 5432
+  username: dbusername
+  password: dbpassword
+  database: keycloak
+
+secrets:
+  admin-creds:
+    annotations:
+      my-test-annotation: Test secret for {{ include "keycloak.fullname" . }}
+    stringData:
+      user: admin
+      password: secret
+
+extraVolumes: |
+  - name: tls-volume
+    secret:
+      secretName: trustorbs-tls
+
+extraVolumeMounts: |
+  - name: tls-volume
+    mountPath: /etc/tls
+    readOnly: true
+
+livenessProbe: |
+  httpGet:
+    path: '{{ tpl .Values.http.relativePath $ | trimSuffix "/" }}/health/live'
+    port: 9000
+    scheme: HTTPS
+  initialDelaySeconds: 0
+  timeoutSeconds: 5
+
+readinessProbe: |
+  httpGet:
+    path: '{{ tpl .Values.http.relativePath $ | trimSuffix "/" }}/health/ready'
+    port: 9000
+    scheme: HTTPS
+  initialDelaySeconds: 10
+  timeoutSeconds: 1
+
+startupProbe: |
+  httpGet:
+    path: '{{ tpl .Values.http.relativePath $ | trimSuffix "/" }}/health'
+    port: 9000
+    scheme: HTTPS
+  initialDelaySeconds: 15
+  timeoutSeconds: 1
+  failureThreshold: 60
+  periodSeconds: 5
